@@ -11,8 +11,8 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 const authSchema = z.object({
-  email: z.string().email('Email inválido').max(255, 'Email demasiado largo'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').max(72, 'Contraseña demasiado larga'),
+  email: z.string().email('Invalid email').max(255, 'Email too long'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(72, 'Password too long'),
 });
 
 export default function AuthPage() {
@@ -48,10 +48,10 @@ export default function AuthPage() {
 
     if (error) {
       toast.error(error.message === 'Invalid login credentials' 
-        ? 'Credenciales incorrectas' 
+        ? 'Invalid credentials' 
         : error.message);
     } else {
-      toast.success('Sesión iniciada');
+      toast.success('Signed in successfully');
     }
   };
 
@@ -71,7 +71,7 @@ export default function AuthPage() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success('Cuenta creada. ¡Bienvenido!');
+      toast.success('Account created. Welcome!');
     }
   };
 
@@ -82,21 +82,21 @@ export default function AuthPage() {
           <div className="mx-auto w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-2">
             <Sparkles className="w-6 h-6 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl font-bold gradient-text">
-            PPT Reuniones
+          <CardTitle className="text-2xl font-display font-bold">
+            <span className="text-foreground">Slide</span><span className="gradient-text">Forge</span>
           </CardTitle>
           <CardDescription>
-            Genera presentaciones profesionales con IA
+            Create stunning presentations with AI
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="space-y-4">
             <TabsList className="grid w-full grid-cols-2 glass-card">
               <TabsTrigger value="login" className="rounded-lg data-[state=active]:bg-white/10">
-                Iniciar sesión
+                Sign In
               </TabsTrigger>
               <TabsTrigger value="register" className="rounded-lg data-[state=active]:bg-white/10">
-                Registrarse
+                Sign Up
               </TabsTrigger>
             </TabsList>
 
@@ -118,7 +118,7 @@ export default function AuthPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="login-password">Contraseña</Label>
+                  <Label htmlFor="login-password">Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
@@ -140,7 +140,7 @@ export default function AuthPage() {
                   {isSubmitting ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : null}
-                  Iniciar sesión
+                  Sign In
                 </Button>
               </form>
             </TabsContent>
@@ -163,13 +163,13 @@ export default function AuthPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="register-password">Contraseña</Label>
+                  <Label htmlFor="register-password">Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
                       id="register-password"
                       type="password"
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder="Min 6 characters"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10 bg-secondary/50 border-border/30"
@@ -185,7 +185,7 @@ export default function AuthPage() {
                   {isSubmitting ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : null}
-                  Crear cuenta
+                  Create Account
                 </Button>
               </form>
             </TabsContent>

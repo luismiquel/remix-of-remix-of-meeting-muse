@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['Outfit', 'Inter', '-apple-system', 'sans-serif'],
       },
       fontSize: {
         'display': ['5rem', { lineHeight: '1', letterSpacing: '-0.02em', fontWeight: '700' }],
@@ -85,8 +86,8 @@ export default {
         '4xl': '2rem',
       },
       boxShadow: {
-        'glow': '0 0 60px hsl(210 100% 50% / 0.2)',
-        'glow-lg': '0 0 100px hsl(210 100% 50% / 0.3)',
+        'glow': '0 0 60px hsl(200 85% 55% / 0.2)',
+        'glow-lg': '0 0 100px hsl(200 85% 55% / 0.3)',
         'inner-glow': 'inset 0 1px 0 0 hsl(0 0% 100% / 0.05)',
       },
       backdropBlur: {
