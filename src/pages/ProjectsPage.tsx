@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { FolderOpen, Calendar, Loader2, Image as ImageIcon, ArrowRight, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
 interface Slide {
@@ -71,14 +70,14 @@ const ProjectsPage = () => {
       pending: 'bg-muted text-muted-foreground border-border',
     };
     const labels = {
-      completed: 'Completado',
-      processing: 'Procesando',
+      completed: 'Completed',
+      processing: 'Processing',
       error: 'Error',
-      pending: 'Pendiente',
+      pending: 'Pending',
     };
     return (
       <Badge className={cn('border', styles[status as keyof typeof styles] || styles.pending)}>
-        {labels[status as keyof typeof labels] || 'Pendiente'}
+        {labels[status as keyof typeof labels] || 'Pending'}
       </Badge>
     );
   };
@@ -86,7 +85,7 @@ const ProjectsPage = () => {
   const getProjectTitle = (presentation: Presentation) => {
     if (presentation.outline?.title) return presentation.outline.title;
     if (presentation.outline?.slides?.[0]?.title) return presentation.outline.slides[0].title;
-    return `Presentación ${format(new Date(presentation.created_at), 'dd MMM yyyy', { locale: es })}`;
+    return `Presentation ${format(new Date(presentation.created_at), 'MMM dd, yyyy')}`;
   };
 
   const getSlideCount = (presentation: Presentation) => presentation.outline?.slides?.length || 0;
@@ -109,10 +108,10 @@ const ProjectsPage = () => {
         {/* Header */}
         <div className="mb-12 animate-fade-in-up">
           <h1 className="text-display-sm mb-4">
-            Proyectos
+            Projects
           </h1>
           <p className="text-body-lg text-muted-foreground">
-            Todas tus presentaciones creadas con IA
+            All your AI-generated presentations
           </p>
         </div>
 
@@ -125,9 +124,9 @@ const ProjectsPage = () => {
               </div>
               <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-primary/10 to-accent/10 blur-2xl -z-10" />
             </div>
-            <h2 className="text-headline mb-4">No hay proyectos todavía</h2>
+            <h2 className="text-headline mb-4">No projects yet</h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-md mx-auto">
-              Crea tu primera presentación y la verás aquí
+              Create your first presentation and it will appear here
             </p>
             <Link to="/">
               <button className={cn(
@@ -137,7 +136,7 @@ const ProjectsPage = () => {
                 "shadow-glow group"
               )}>
                 <Sparkles className="w-5 h-5" />
-                Crear Presentación
+                Create Presentation
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </Link>
@@ -186,8 +185,8 @@ const ProjectsPage = () => {
                     <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="hidden sm:inline">{format(new Date(presentation.created_at), 'dd MMM yyyy', { locale: es })}</span>
-                        <span className="sm:hidden">{format(new Date(presentation.created_at), 'dd/MM', { locale: es })}</span>
+                        <span className="hidden sm:inline">{format(new Date(presentation.created_at), 'MMM dd, yyyy')}</span>
+                        <span className="sm:hidden">{format(new Date(presentation.created_at), 'MM/dd')}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <ImageIcon className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -199,7 +198,7 @@ const ProjectsPage = () => {
                   {/* Hover indicator */}
                   <div className="px-3 pb-3 sm:px-5 sm:pb-5">
                     <div className="flex items-center text-xs sm:text-sm text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span>Ver proyecto</span>
+                      <span>View project</span>
                       <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
