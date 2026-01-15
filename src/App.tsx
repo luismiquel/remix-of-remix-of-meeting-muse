@@ -8,8 +8,6 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AuthPage from "./pages/AuthPage";
 import CreatePage from "./pages/CreatePage";
-import CreateFromScratchPage from "./pages/CreateFromScratchPage";
-import ScratchEditorPage from "./pages/ScratchEditorPage";
 import SettingsPage from "./pages/SettingsPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
@@ -33,8 +31,6 @@ const App = () => (
                   <AppLayout>
                     <Routes>
                       <Route path="/" element={<CreatePage />} />
-                      <Route path="/create-scratch" element={<CreateFromScratchPage />} />
-                      <Route path="/create-scratch/:id" element={<ScratchEditorPage />} />
                       <Route path="/settings" element={<SettingsPage />} />
                       <Route path="/projects" element={<ProjectsPage />} />
                       <Route path="/projects/:id" element={<ProjectDetailPage />} />

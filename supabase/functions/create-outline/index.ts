@@ -15,7 +15,7 @@ serve(async (req) => {
   try {
     const { analysis, stylePrompt } = await req.json();
     
-    console.log('Creating presentation outline with Gemini 3 Pro...');
+    console.log('Creating presentation outline...');
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -25,51 +25,55 @@ serve(async (req) => {
     const messages = [
       {
         role: 'system',
-        content: `Eres un experto diseñador de presentaciones ejecutivas. Tu tarea es crear un outline detallado para una presentación profesional basándote en el análisis de una reunión.
+        content: `You are an expert executive presentation designer. Create concise, decision-focused presentations.
 
-IMPORTANTE: Debes crear entre 10 y 15 diapositivas para cubrir adecuadamente todo el contenido.
+CRITICAL RULES:
+- Create 6-10 slides maximum (prefer fewer, more impactful slides)
+- Focus on decisions, conclusions, and action items
+- NO filler slides, NO excessive detail
+- Each slide must have a clear purpose
 
-Para cada diapositiva debes proporcionar:
-1. title: Título de la diapositiva (corto, impactante)
-2. content: Contenido principal con los puntos clave en formato de bullets o párrafo
-3. description: Descripción COMPLETA para generar la imagen de la diapositiva
+For each slide provide:
+1. title: Short, impactful title (max 6 words)
+2. content: Key points as bullet list (max 4 bullets per slide)
+3. description: COMPLETE English description for image generation
 
-${stylePrompt ? `Estilo visual deseado: ${stylePrompt}` : 'Estilo visual: Profesional, corporativo, moderno'}
+${stylePrompt ? `Visual style: ${stylePrompt}` : 'Visual style: Professional, corporate, modern, clean'}
 
-CRÍTICO para el campo "description":
-- Debe ser una descripción en INGLÉS para el modelo de generación de imágenes
-- DEBE incluir el texto EXACTO que debe aparecer visible en la diapositiva (título y puntos clave)
-- Debe describir el layout, colores, tipografía y elementos visuales
-- Incluir instrucciones de diseño específicas
+CRITICAL for "description" field:
+- Must be in ENGLISH for the image generation model
+- MUST include the EXACT text that should appear visible on the slide
+- Describe layout, colors, typography and visual elements
+- Include specific design instructions
 
-Ejemplo de description correcto:
-"A professional presentation slide with dark blue gradient background. Large white title text at top reading 'Q4 Financial Results'. Below the title, three bullet points in white text: '• Revenue increased 25%', '• New market expansion completed', '• Customer satisfaction at 95%'. Modern sans-serif typography (like Montserrat or Roboto). A subtle upward trending graph icon in the bottom right corner in teal color. Clean minimalist corporate design with plenty of white space."
+Example description:
+"A professional presentation slide with dark blue gradient background. Large white title text at top reading 'Q4 Results'. Below, three bullet points in white: '• Revenue +25%', '• New markets launched', '• 95% satisfaction'. Modern sans-serif typography. Clean minimalist corporate design."
 
-IMPORTANTE: Responde SOLO con un JSON válido sin markdown ni texto adicional. El formato debe ser:
+IMPORTANT: Respond ONLY with valid JSON without markdown. Format:
 {
-  "title": "Título de la presentación",
+  "title": "Presentation Title",
   "slides": [
     {
       "slideNumber": 1,
-      "title": "Título de la diapositiva",
-      "content": "Contenido principal con puntos clave en español",
-      "description": "Complete English description for image generation including ALL text that must appear on the slide, visual elements, colors, layout, and typography"
+      "title": "Slide title",
+      "content": "Main content with key points",
+      "description": "Complete English description for image generation including ALL visible text"
     }
   ]
 }`
       },
       {
         role: 'user',
-        content: `Crea un outline de presentación basándote en este análisis:
+        content: `Create an executive presentation outline based on this analysis:
 
 ${analysis}
 
-INSTRUCCIONES:
-1. Genera entre 10 y 15 diapositivas según la cantidad y complejidad del contenido
-2. La primera diapositiva debe ser una portada con el título principal
-3. La última diapositiva debe ser un cierre/conclusiones/próximos pasos
-4. Cada "description" DEBE incluir el texto exacto que debe aparecer visible en la imagen
-5. Las descripciones deben ser en inglés y muy detalladas para generar imágenes de alta calidad`
+INSTRUCTIONS:
+1. Generate 6-10 slides maximum
+2. First slide: title/cover
+3. Last slide: conclusions/next steps
+4. Each "description" MUST include exact text to appear on the image
+5. Descriptions must be detailed and in English`
       }
     ];
 

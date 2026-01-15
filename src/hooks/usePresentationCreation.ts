@@ -14,32 +14,32 @@ export interface Task {
 const initialTasks: Task[] = [
   {
     id: 'understand',
-    label: 'Analizando contenido',
-    description: 'Procesando transcript y prompts con IA',
+    label: 'Analyzing content',
+    description: 'Processing transcript with AI',
     status: 'pending',
   },
   {
     id: 'outline',
-    label: 'Creando outline',
-    description: 'Generando estructura y contenido de diapositivas',
+    label: 'Creating outline',
+    description: 'Generating slide structure and content',
     status: 'pending',
   },
   {
     id: 'database',
-    label: 'Guardando estructura',
-    description: 'Almacenando descripciones en base de datos',
+    label: 'Saving structure',
+    description: 'Storing slide descriptions in database',
     status: 'pending',
   },
   {
     id: 'images',
-    label: 'Generando imágenes',
-    description: 'Creando visuales para cada diapositiva',
+    label: 'Generating images',
+    description: 'Creating visuals for each slide',
     status: 'pending',
   },
   {
     id: 'pdf',
-    label: 'Compilando PDF',
-    description: 'Unificando todas las diapositivas en un documento',
+    label: 'Compiling PDF',
+    description: 'Combining all slides into a document',
     status: 'pending',
   },
 ];
@@ -77,9 +77,9 @@ const invokeWithTimeout = async (functionName: string, body: any, timeoutMs: num
   } catch (error: any) {
     clearTimeout(timeoutId);
     if (error.name === 'AbortError') {
-      return { data: null, error: { message: `Timeout: La operación tardó más de ${timeoutMs/1000} segundos` } };
+      return { data: null, error: { message: `Timeout: Operation took longer than ${timeoutMs/1000} seconds` } };
     }
-    return { data: null, error: { message: error.message || 'Error de conexión' } };
+    return { data: null, error: { message: error.message || 'Connection error' } };
   }
 };
 
@@ -89,7 +89,6 @@ const invokeWithRetry = async (
   body: any, 
   timeoutMs: number,
   maxRetries: number,
-  addLog: (msg: string) => void,
   stepName: string
 ): Promise<{ data: any; error: any }> => {
   let retries = maxRetries;
@@ -99,28 +98,28 @@ const invokeWithRetry = async (
     const retryDelay = attemptNumber * 5000; // 5s, 10s, 15s
     
     try {
-      addLog(`${stepName} (intento ${attemptNumber}/${maxRetries}, timeout: ${timeoutMs/1000}s)...`);
+      console.log(`${stepName} (attempt ${attemptNumber}/${maxRetries}, timeout: ${timeoutMs/1000}s)...`);
       
       const { data, error } = await invokeWithTimeout(functionName, body, timeoutMs);
       
       if (error) {
         retries--;
         if (retries > 0) {
-          addLog(`Error: ${error.message}. Reintentando en ${retryDelay/1000}s...`);
+          console.log(`Error: ${error.message}. Retrying in ${retryDelay/1000}s...`);
           await delay(retryDelay);
           continue;
         }
-        return { data: null, error: { message: `Error después de ${maxRetries} intentos: ${error.message}` } };
+        return { data: null, error: { message: `Error after ${maxRetries} attempts: ${error.message}` } };
       }
       
       if (data?.error) {
         retries--;
         if (retries > 0) {
-          addLog(`Error servidor: ${data.error}. Reintentando en ${retryDelay/1000}s...`);
+          console.log(`Server error: ${data.error}. Retrying in ${retryDelay/1000}s...`);
           await delay(retryDelay);
           continue;
         }
-        return { data: null, error: { message: `Error servidor después de ${maxRetries} intentos: ${data.error}` } };
+        return { data: null, error: { message: `Server error after ${maxRetries} attempts: ${data.error}` } };
       }
       
       return { data, error: null };
@@ -128,15 +127,15 @@ const invokeWithRetry = async (
     } catch (e: any) {
       retries--;
       if (retries > 0) {
-        addLog(`Excepción: ${e.message}. Reintentando en ${retryDelay/1000}s...`);
+        console.log(`Exception: ${e.message}. Retrying in ${retryDelay/1000}s...`);
         await delay(retryDelay);
       } else {
-        return { data: null, error: { message: `Excepción después de ${maxRetries} intentos: ${e.message}` } };
+        return { data: null, error: { message: `Exception after ${maxRetries} attempts: ${e.message}` } };
       }
     }
   }
   
-  return { data: null, error: { message: 'Error desconocido' } };
+  return { data: null, error: { message: 'Unknown error' } };
 };
 
 export const usePresentationCreation = () => {
@@ -145,16 +144,8 @@ export const usePresentationCreation = () => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [showProgress, setShowProgress] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
   const [slideProgress, setSlideProgress] = useState({ completed: 0, total: 0 });
   const [lastPresentationId, setLastPresentationId] = useState<string | null>(null);
-
-  const addLog = (message: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    const logMessage = `[${timestamp}] ${message}`;
-    console.log(logMessage);
-    setLogs(prev => [...prev, logMessage]);
-  };
 
   const updateTaskStatus = (taskId: string, status: Task['status'], errorMessage?: string) => {
     setTasks(prev => prev.map(task => 
@@ -165,7 +156,6 @@ export const usePresentationCreation = () => {
   const resetState = () => {
     setTasks(initialTasks);
     setPdfUrl(null);
-    setLogs([]);
     setSlideProgress({ completed: 0, total: 0 });
     setLastPresentationId(null);
   };
@@ -173,13 +163,12 @@ export const usePresentationCreation = () => {
   // Function to retry only PDF generation
   const retryPdfOnly = async () => {
     if (!lastPresentationId) {
-      toast.error('No hay presentación para reintentar');
+      toast.error('No presentation to retry');
       return;
     }
 
     setIsProcessing(true);
     updateTaskStatus('pdf', 'processing', undefined);
-    addLog('Reintentando generación de PDF...');
 
     try {
       const { data: pdfResult, error: pdfError } = await invokeWithRetry(
@@ -187,14 +176,12 @@ export const usePresentationCreation = () => {
         { presentationId: lastPresentationId },
         120000, // 2 minutes timeout
         3,
-        addLog,
-        'Generando PDF'
+        'Generating PDF'
       );
 
       if (pdfError) {
-        addLog(`ERROR: ${pdfError.message}`);
         updateTaskStatus('pdf', 'error', pdfError.message);
-        toast.error(pdfError.message || 'Error al crear PDF');
+        toast.error(pdfError.message || 'Error creating PDF');
         return;
       }
 
@@ -206,83 +193,85 @@ export const usePresentationCreation = () => {
 
       updateTaskStatus('pdf', 'completed');
       setPdfUrl(pdfResult.pdfUrl!);
-      addLog('¡PDF generado exitosamente!');
-      addLog(`PDF disponible en: ${pdfResult.pdfUrl}`);
-      toast.success('¡PDF creado exitosamente!');
+      toast.success('PDF created successfully!');
 
     } catch (error: any) {
       console.error('Error retrying PDF:', error);
-      addLog(`ERROR: ${error.message || 'Error desconocido'}`);
       updateTaskStatus('pdf', 'error', error.message);
-      toast.error(error.message || 'Error al crear PDF');
+      toast.error(error.message || 'Error creating PDF');
     } finally {
       setIsProcessing(false);
     }
   };
 
   const createPresentation = async (data: {
-    systemPrompt: string;
-    userPrompt: string;
-    stylePrompt: string;
     transcript: string;
   }) => {
     setIsProcessing(true);
     setShowProgress(true);
     resetState();
-    addLog('Iniciando proceso de creación de presentación...');
+
+    // Load user's style settings
+    let stylePrompt = '';
+    if (user?.id) {
+      try {
+        const { data: settings } = await supabase
+          .from('user_settings')
+          .select('system_prompt')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (settings?.system_prompt) {
+          const parsed = JSON.parse(settings.system_prompt);
+          stylePrompt = parsed.stylePrompt || '';
+        }
+      } catch (e) {
+        // No settings found, use defaults
+      }
+    }
 
     try {
       // Step 1: Analyze content with retries
       updateTaskStatus('understand', 'processing');
-      addLog('Paso 1: Analizando transcript con Gemini 3 Pro...');
       
       const { data: analysisResult, error: analysisError } = await invokeWithRetry(
         'analyze-transcript',
         {
-          systemPrompt: data.systemPrompt,
-          userPrompt: data.userPrompt,
           transcript: data.transcript,
         },
         90000, // 90 seconds timeout
         3,     // 3 retries
-        addLog,
-        'Analizando transcript'
+        'Analyzing transcript'
       );
 
       if (analysisError) {
-        throw new Error(`Error al analizar el transcript: ${analysisError.message}`);
+        throw new Error(`Error analyzing transcript: ${analysisError.message}`);
       }
 
-      addLog('Análisis completado exitosamente');
-      addLog(`Longitud del análisis: ${analysisResult.analysis?.length || 0} caracteres`);
       updateTaskStatus('understand', 'completed');
 
       // Step 2: Create outline with retries
       updateTaskStatus('outline', 'processing');
-      addLog('Paso 2: Creando outline de presentación con Gemini 3 Pro...');
       
       const { data: outlineResult, error: outlineError } = await invokeWithRetry(
         'create-outline',
         {
           analysis: analysisResult.analysis,
-          stylePrompt: data.stylePrompt,
+          stylePrompt: stylePrompt,
         },
         90000, // 90 seconds timeout
         3,     // 3 retries
-        addLog,
-        'Creando outline'
+        'Creating outline'
       );
 
       if (outlineError) {
-        throw new Error(`Error al crear el outline: ${outlineError.message}`);
+        throw new Error(`Error creating outline: ${outlineError.message}`);
       }
 
-      addLog(`Outline creado con ${outlineResult.outline?.slides?.length || 0} diapositivas`);
       updateTaskStatus('outline', 'completed');
 
       // Step 3: Save to database with retries
       updateTaskStatus('database', 'processing');
-      addLog('Paso 3: Guardando en base de datos...');
       
       let presentation: any = null;
       let dbRetries = 3;
@@ -292,14 +281,10 @@ export const usePresentationCreation = () => {
         const retryDelay = attemptNumber * 5000;
         
         try {
-          addLog(`Guardando presentación (intento ${attemptNumber}/3)...`);
-          
           const { data: dbData, error: dbError } = await supabase
             .from('presentations')
             .insert({
-              system_prompt: data.systemPrompt,
-              user_prompt: data.userPrompt,
-              style_prompt: data.stylePrompt,
+              style_prompt: stylePrompt,
               transcript: data.transcript,
               outline: outlineResult.outline,
               status: 'processing',
@@ -311,18 +296,18 @@ export const usePresentationCreation = () => {
           if (dbError) {
             dbRetries--;
             if (dbRetries > 0) {
-              addLog(`Error en BD: ${dbError.message}. Reintentando en ${retryDelay/1000}s...`);
+              console.log(`DB error: ${dbError.message}. Retrying in ${retryDelay/1000}s...`);
               await delay(retryDelay);
               continue;
             }
-            throw new Error(`Error al guardar en base de datos: ${dbError.message}`);
+            throw new Error(`Database error: ${dbError.message}`);
           }
           
           presentation = dbData;
         } catch (e: any) {
           dbRetries--;
           if (dbRetries > 0) {
-            addLog(`Excepción BD: ${e.message}. Reintentando en ${retryDelay/1000}s...`);
+            console.log(`DB exception: ${e.message}. Retrying in ${retryDelay/1000}s...`);
             await delay(retryDelay);
           } else {
             throw e;
@@ -330,7 +315,6 @@ export const usePresentationCreation = () => {
         }
       }
 
-      addLog(`Presentación guardada con ID: ${presentation.id}`);
       setLastPresentationId(presentation.id);
 
       // Save slides with retries
@@ -348,8 +332,6 @@ export const usePresentationCreation = () => {
         const retryDelay = attemptNumber * 5000;
         
         try {
-          addLog(`Guardando slides (intento ${attemptNumber}/3)...`);
-          
           const { data: slidesResult, error: slidesError } = await supabase
             .from('slides')
             .insert(slidesData)
@@ -358,18 +340,18 @@ export const usePresentationCreation = () => {
           if (slidesError) {
             slidesDbRetries--;
             if (slidesDbRetries > 0) {
-              addLog(`Error guardando slides: ${slidesError.message}. Reintentando en ${retryDelay/1000}s...`);
+              console.log(`Slides error: ${slidesError.message}. Retrying in ${retryDelay/1000}s...`);
               await delay(retryDelay);
               continue;
             }
-            throw new Error(`Error al guardar diapositivas: ${slidesError.message}`);
+            throw new Error(`Error saving slides: ${slidesError.message}`);
           }
           
           slides = slidesResult || [];
         } catch (e: any) {
           slidesDbRetries--;
           if (slidesDbRetries > 0) {
-            addLog(`Excepción slides: ${e.message}. Reintentando en ${retryDelay/1000}s...`);
+            console.log(`Slides exception: ${e.message}. Retrying in ${retryDelay/1000}s...`);
             await delay(retryDelay);
           } else {
             throw e;
@@ -377,16 +359,13 @@ export const usePresentationCreation = () => {
         }
       }
 
-      addLog(`${slides.length} diapositivas guardadas en BD`);
       updateTaskStatus('database', 'completed');
 
       // Step 4: Generate images one by one with retries
       updateTaskStatus('images', 'processing');
-      addLog('Paso 4: Generando imágenes con Nano Banana Pro...');
       
       const totalSlides = outlineResult.outline.slides.length;
       setSlideProgress({ completed: 0, total: totalSlides });
-      addLog(`Generando ${totalSlides} diapositivas (30-40 seg cada una)...`);
       
       let successfulSlides = 0;
 
@@ -395,7 +374,6 @@ export const usePresentationCreation = () => {
         const slideNumber = i + 1;
         
         if (i > 0) {
-          addLog(`Esperando 5s antes de siguiente slide...`);
           await delay(5000);
         }
         
@@ -407,45 +385,38 @@ export const usePresentationCreation = () => {
             title: slide.title,
             content: slide.content,
             description: slide.description,
-            stylePrompt: data.stylePrompt,
+            stylePrompt: stylePrompt,
           },
           90000, // 90 seconds timeout
           3,     // 3 retries
-          addLog,
-          `Generando slide ${slideNumber}/${totalSlides}`
+          `Generating slide ${slideNumber}/${totalSlides}`
         );
 
         if (!slideError && slideResult) {
           successfulSlides++;
           setSlideProgress({ completed: successfulSlides, total: totalSlides });
-          addLog(`✓ Slide ${slideNumber} completada (${successfulSlides}/${totalSlides})`);
-        } else {
-          addLog(`✗ Slide ${slideNumber} falló después de 3 intentos`);
         }
       }
 
       if (successfulSlides === 0) {
-        throw new Error('No se pudo generar ninguna imagen');
+        throw new Error('Could not generate any images');
       }
 
-      addLog(`Imágenes generadas: ${successfulSlides}/${totalSlides}`);
       updateTaskStatus('images', 'completed');
 
       // Step 5: Create PDF with retries
       updateTaskStatus('pdf', 'processing');
-      addLog('Paso 5: Compilando PDF...');
       
       const { data: pdfResult, error: pdfError } = await invokeWithRetry(
         'create-pdf',
         { presentationId: presentation.id },
         120000, // 2 minutes timeout
         3,      // 3 retries
-        addLog,
-        'Generando PDF'
+        'Generating PDF'
       );
 
       if (pdfError) {
-        throw new Error(pdfError.message || 'Error al crear PDF');
+        throw new Error(pdfError.message || 'Error creating PDF');
       }
       
       // Update presentation with PDF URL
@@ -456,14 +427,11 @@ export const usePresentationCreation = () => {
 
       updateTaskStatus('pdf', 'completed');
       setPdfUrl(pdfResult.pdfUrl!);
-      addLog('¡Proceso completado exitosamente!');
-      addLog(`PDF disponible en: ${pdfResult.pdfUrl}`);
-      toast.success('¡Presentación creada exitosamente!');
+      toast.success('Presentation created successfully!');
 
     } catch (error: any) {
       console.error('Error creating presentation:', error);
-      addLog(`ERROR: ${error.message || 'Error desconocido'}`);
-      toast.error(error.message || 'Error al crear la presentación');
+      toast.error(error.message || 'Error creating presentation');
       
       setTasks(prev => prev.map(task => 
         task.status === 'processing' ? { ...task, status: 'error', errorMessage: error.message } : task
@@ -481,7 +449,6 @@ export const usePresentationCreation = () => {
     tasks,
     pdfUrl,
     showProgress,
-    logs,
     isComplete,
     slideProgress,
     createPresentation,

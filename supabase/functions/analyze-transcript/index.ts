@@ -11,9 +11,9 @@ serve(async (req) => {
   }
 
   try {
-    const { systemPrompt, userPrompt, transcript } = await req.json();
+    const { transcript } = await req.json();
     
-    console.log('Analyzing transcript with Gemini 3 Pro...');
+    console.log('Analyzing transcript...');
     console.log('Transcript length:', transcript?.length);
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
@@ -24,24 +24,26 @@ serve(async (req) => {
     const messages = [
       {
         role: 'system',
-        content: `Eres un experto en análisis de reuniones y creación de presentaciones. Tu tarea es analizar transcripts de reuniones y extraer la información más relevante para crear presentaciones impactantes.
+        content: `You are an expert at analyzing meetings and creating executive presentations. Your task is to analyze meeting transcripts and extract the most relevant information for clear, decision-focused presentations.
 
-${systemPrompt ? `Instrucciones adicionales del usuario: ${systemPrompt}` : ''}
+Analyze the transcript and provide:
+1. Key decisions made
+2. Action items and owners
+3. Critical metrics or data mentioned
+4. Main conclusions and next steps
+5. Topics that require visualization
 
-Debes analizar el transcript y proporcionar:
-1. Los puntos clave de la reunión
-2. Las decisiones tomadas
-3. Los próximos pasos y responsables
-4. Datos o métricas mencionados
-5. Temas que requieren visualización
+Focus on:
+- Executive-level insights, not detailed notes
+- Decisions and outcomes, not discussions
+- Actionable items, not general topics
+- Concise bullet points, not paragraphs
 
-Responde en español y de forma estructurada.`
+Respond in the same language as the transcript.`
       },
       {
         role: 'user',
-        content: `${userPrompt ? `Enfoque específico para esta presentación: ${userPrompt}\n\n` : ''}
-
-Analiza el siguiente transcript de reunión:
+        content: `Analyze this meeting transcript and extract the key points for an executive presentation:
 
 ${transcript}`
       }
