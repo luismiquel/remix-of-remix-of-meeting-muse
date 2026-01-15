@@ -2,75 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=SF+Pro+Display:wght@300;400;500;600;700&display=swap');
-
 @layer base {
   :root {
-    --background: 0 0% 3%;
-    --foreground: 0 0% 98%;
+    --background: 210 40% 6%;
+    --foreground: 210 20% 98%;
 
-    --card: 0 0% 6%;
-    --card-foreground: 0 0% 98%;
+    --card: 210 35% 9%;
+    --card-foreground: 210 20% 98%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 210 35% 9%;
+    --popover-foreground: 210 20% 98%;
 
-    --primary: 210 100% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 200 85% 55%;
+    --primary-foreground: 210 40% 6%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 210 30% 14%;
+    --secondary-foreground: 210 20% 98%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 55%;
+    --muted: 210 25% 18%;
+    --muted-foreground: 210 15% 55%;
 
-    --accent: 280 100% 70%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 16 85% 60%;
+    --accent-foreground: 210 40% 6%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 12%;
-    --ring: 210 100% 50%;
+    --border: 210 25% 18%;
+    --input: 210 30% 14%;
+    --ring: 200 85% 55%;
 
     --radius: 1rem;
 
-    /* Premium gradients */
+    /* Premium gradients - Ocean Blue to Coral */
     --gradient-hero: linear-gradient(135deg, 
-      hsl(210, 100%, 50%) 0%, 
-      hsl(280, 100%, 60%) 50%,
-      hsl(330, 100%, 60%) 100%);
+      hsl(200, 85%, 55%) 0%, 
+      hsl(180, 70%, 50%) 50%,
+      hsl(16, 85%, 60%) 100%);
     --gradient-subtle: linear-gradient(180deg, 
-      hsl(0, 0%, 6%) 0%, 
-      hsl(0, 0%, 3%) 100%);
+      hsl(210, 35%, 9%) 0%, 
+      hsl(210, 40%, 6%) 100%);
     --gradient-glow: radial-gradient(ellipse at center, 
-      hsl(210, 100%, 50%, 0.15) 0%, 
+      hsl(200, 85%, 55%, 0.15) 0%, 
       transparent 70%);
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(280, 100%, 60%, 0.3) 0px, transparent 50%),
-                     radial-gradient(at 80% 0%, hsl(210, 100%, 50%, 0.3) 0px, transparent 50%),
-                     radial-gradient(at 0% 50%, hsl(330, 100%, 60%, 0.2) 0px, transparent 50%);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(16, 85%, 60%, 0.25) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(200, 85%, 55%, 0.3) 0px, transparent 50%),
+                     radial-gradient(at 0% 50%, hsl(180, 70%, 50%, 0.2) 0px, transparent 50%);
     
     /* Shadows */
-    --shadow-glow: 0 0 60px hsl(210 100% 50% / 0.2);
-    --shadow-card: 0 8px 32px hsl(0 0% 0% / 0.4);
-    --shadow-elevated: 0 20px 60px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 60px hsl(200 85% 55% / 0.2);
+    --shadow-card: 0 8px 32px hsl(210 40% 0% / 0.4);
+    --shadow-elevated: 0 20px 60px hsl(210 40% 0% / 0.5);
     
     /* Success/Warning */
-    --success: 142 76% 36%;
+    --success: 160 76% 40%;
     --success-foreground: 0 0% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 6%;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 4%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 210 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 210 100% 50%;
+    --sidebar-background: 210 38% 7%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 200 85% 55%;
+    --sidebar-primary-foreground: 210 40% 6%;
+    --sidebar-accent: 210 28% 12%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 210 25% 15%;
+    --sidebar-ring: 200 85% 55%;
   }
 }
 

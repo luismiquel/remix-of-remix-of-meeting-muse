@@ -19,10 +19,10 @@ import {
 } from '@/components/ui/sidebar';
 
 const menuItems = [
-  { title: 'Crear', url: '/', icon: PlusCircle },
-  { title: 'Crear desde cero', url: '/create-scratch', icon: FilePlus2 },
-  { title: 'Proyectos', url: '/projects', icon: FolderOpen },
-  { title: 'Ajustes', url: '/settings', icon: Settings },
+  { title: 'Create', url: '/', icon: PlusCircle },
+  { title: 'Create from Scratch', url: '/create-scratch', icon: FilePlus2 },
+  { title: 'Projects', url: '/projects', icon: FolderOpen },
+  { title: 'Settings', url: '/settings', icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -38,7 +38,7 @@ export function AppSidebar() {
 
   const handleSignOut = async () => {
     await signOut();
-    toast.success('Sesión cerrada');
+    toast.success('Signed out');
   };
 
   return (
@@ -51,10 +51,10 @@ export function AppSidebar() {
           </div>
           {!isCollapsed && (
             <div className="animate-fade-in">
-              <h1 className="text-lg font-bold tracking-tight text-foreground">
-                Transcript<span className="gradient-text">AI</span>
+              <h1 className="text-xl font-display font-bold tracking-tight">
+                <span className="text-foreground">Slide</span><span className="gradient-text">Forge</span>
               </h1>
-              <p className="text-xs text-muted-foreground">Presentations reimagined</p>
+              <p className="text-xs text-muted-foreground">AI-powered presentations</p>
             </div>
           )}
         </div>
@@ -134,11 +134,11 @@ export function AppSidebar() {
           )}
         >
           <LogOut className="w-4 h-4" />
-          {!isCollapsed && <span className="ml-2">Cerrar sesión</span>}
+          {!isCollapsed && <span className="ml-2">Sign out</span>}
         </Button>
         <div className="flex items-center justify-center">
           <p className="text-xs text-muted-foreground/50">
-            {!isCollapsed && "Powered by Gemini 3 Pro"}
+            {!isCollapsed && "Powered by AI"}
           </p>
         </div>
       </SidebarFooter>
