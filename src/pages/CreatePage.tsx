@@ -1,19 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Upload, Sparkles, FileText, Loader2, ArrowRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Sparkles, FileText, Loader2, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { ProgressTracker } from '@/components/ProgressTracker';
+import { TranscriptInput } from '@/components/TranscriptInput';
 import { usePresentationCreation } from '@/hooks/usePresentationCreation';
+import { validateTranscript } from '@/lib/validation';
 import { cn } from '@/lib/utils';
 
 const CreatePage = () => {
   const navigate = useNavigate();
   const [transcript, setTranscript] = useState('');
+  const [validationError, setValidationError] = useState<string | null>(null);
   
   const {
     isProcessing,
@@ -25,49 +24,24 @@ const CreatePage = () => {
     lastPresentationId,
   } = usePresentationCreation();
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const validTypes = ['text/plain', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    
-    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-      const text = await file.text();
-      setTranscript(text);
-      toast.success('File loaded successfully');
-    } else if (validTypes.includes(file.type) || file.name.endsWith('.doc') || file.name.endsWith('.docx') || file.name.endsWith('.pdf')) {
-      toast.info('Processing file...');
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      try {
-        const { data, error } = await supabase.functions.invoke('parse-document', {
-          body: formData,
-        });
-        
-        if (error) throw error;
-        setTranscript(data.text);
-        toast.success('File processed successfully');
-      } catch (error) {
-        toast.error('Error processing file');
-      }
-    } else {
-      toast.error('Format not supported');
-    }
-  };
-
   const handleSubmit = async () => {
-    if (!transcript.trim()) {
-      toast.error('Add your meeting transcript');
+    const validation = validateTranscript(transcript);
+    
+    if (!validation.isValid) {
+      setValidationError(validation.error);
+      toast.error(validation.error || 'Please add more content');
       return;
     }
 
+    setValidationError(null);
     await createPresentation({ transcript });
   };
 
   if (isComplete && lastPresentationId) {
     setTimeout(() => navigate(`/projects/${lastPresentationId}`), 2000);
   }
+
+  const isSubmitDisabled = isProcessing || !transcript.trim() || transcript.trim().length < 100;
 
   return (
     <div className="min-h-screen relative">
@@ -101,52 +75,13 @@ const CreatePage = () => {
                 </div>
               </div>
 
-              {/* Upload area */}
-              <Label 
-                htmlFor="file-upload" 
-                className={cn(
-                  "relative flex flex-col items-center justify-center gap-4 p-8",
-                  "border-2 border-dashed border-border/50 rounded-2xl",
-                  "cursor-pointer transition-all duration-300",
-                  "hover:border-primary/50 hover:bg-primary/5",
-                  "group"
-                )}
-              >
-                <div className="p-4 rounded-full bg-secondary/50 group-hover:bg-primary/10 transition-colors">
-                  <Upload className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
-                </div>
-                <div className="text-center">
-                  <p className="font-medium text-foreground">Drag a file here</p>
-                  <p className="text-sm text-muted-foreground mt-1">or click to select (.txt, .doc, .pdf)</p>
-                </div>
-                <Input 
-                  id="file-upload" 
-                  type="file" 
-                  accept=".txt,.doc,.docx,.pdf"
-                  onChange={handleFileUpload}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                />
-              </Label>
-
-              {/* Textarea */}
-              <div className="relative">
-                <Textarea
-                  placeholder="Or paste your meeting transcript here..."
-                  value={transcript}
-                  onChange={(e) => setTranscript(e.target.value)}
-                  className={cn(
-                    "min-h-[200px] resize-none font-mono text-sm",
-                    "bg-secondary/30 border-border/30 rounded-xl",
-                    "focus:border-primary/50 focus:ring-2 focus:ring-primary/20",
-                    "transition-all duration-300 placeholder:text-muted-foreground/50"
-                  )}
-                />
-                {transcript && (
-                  <div className="absolute bottom-4 right-4 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                    {transcript.length.toLocaleString()} characters
-                  </div>
-                )}
-              </div>
+              {/* Transcript Input Component */}
+              <TranscriptInput
+                value={transcript}
+                onChange={setTranscript}
+                disabled={isProcessing}
+                error={validationError}
+              />
 
               {/* Submit Button */}
               <Button 
@@ -157,10 +92,11 @@ const CreatePage = () => {
                   "bg-gradient-to-r from-primary via-primary to-accent",
                   "hover:opacity-90 transition-all duration-300",
                   "shadow-glow hover:shadow-glow-lg",
-                  "group relative overflow-hidden"
+                  "group relative overflow-hidden",
+                  "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
                 onClick={handleSubmit}
-                disabled={isProcessing || !transcript.trim()}
+                disabled={isSubmitDisabled}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 {isProcessing ? (
@@ -176,6 +112,13 @@ const CreatePage = () => {
                   </>
                 )}
               </Button>
+
+              {/* Minimum character hint */}
+              {!isProcessing && transcript.trim().length > 0 && transcript.trim().length < 100 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  Add at least {100 - transcript.trim().length} more characters to create a presentation
+                </p>
+              )}
             </div>
           </div>
 
