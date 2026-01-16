@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Download, FileText, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Download, ExternalLink, CheckCircle2 } from 'lucide-react';
 
 interface DownloadSectionProps {
   pdfUrl: string | null;
@@ -16,9 +16,9 @@ export const DownloadSection = ({ pdfUrl, isComplete }: DownloadSectionProps) =>
       </div>
       
       <div className="space-y-2">
-        <h3 className="text-2xl font-bold gradient-text">¡Presentación Lista!</h3>
+        <h3 className="text-2xl font-bold gradient-text">Presentation Ready!</h3>
         <p className="text-muted-foreground">
-          Tu presentación ha sido creada exitosamente
+          Your presentation has been created successfully
         </p>
       </div>
 
@@ -30,7 +30,7 @@ export const DownloadSection = ({ pdfUrl, isComplete }: DownloadSectionProps) =>
           onClick={() => window.open(pdfUrl, '_blank')}
         >
           <Download className="w-5 h-5" />
-          Descargar PDF
+          Download PDF
         </Button>
         <Button 
           variant="outline" 
@@ -39,7 +39,7 @@ export const DownloadSection = ({ pdfUrl, isComplete }: DownloadSectionProps) =>
           onClick={() => window.open(pdfUrl, '_blank')}
         >
           <ExternalLink className="w-5 h-5" />
-          Ver en Nueva Pestaña
+          Open in New Tab
         </Button>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { Check, Circle, Loader2, Sparkles } from 'lucide-react';
+import { Check, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface Task {
@@ -26,9 +26,9 @@ export const ProgressTracker = ({ tasks, slideProgress }: ProgressTrackerProps) 
           <Sparkles className="w-5 h-5 text-primary" />
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold">Creando Presentación</h3>
+          <h3 className="text-lg font-semibold">Creating Presentation</h3>
           <p className="text-sm text-muted-foreground">
-            {completedCount} de {tasks.length} pasos completados
+            {completedCount} of {tasks.length} steps completed
           </p>
         </div>
         <span className="text-2xl font-bold gradient-text">
